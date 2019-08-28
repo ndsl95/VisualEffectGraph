@@ -738,7 +738,7 @@ VisualEffect:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1382471688}
   m_Enabled: 1
-  m_Asset: {fileID: 8926484042661614526, guid: a93238d9c8cdee540aa61f66316b5a17, type: 3}
+  m_Asset: {fileID: 8926484042661614526, guid: 349fddbf3a980054096f7c4ddc894bf7, type: 3}
   m_StartSeed: 0
   m_ResetSeedOnPlay: 1
   m_PropertySheet:
