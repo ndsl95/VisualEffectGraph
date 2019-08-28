@@ -19,3 +19,5 @@ Alternatively you can use the _Kinect VFX Mapped_ prefab instead. This does also
 ## TODO
 
 - Improve the positional accuracy of the mapped points.
+
+
