@@ -27,23 +27,13 @@ namespace KinectVfx
         private RenderTexture tempPositionTexture;
         private Texture2D colorSourceTexture;
         private RenderTexture tempColorTexture;
-        public RawImage rawImage;
-        private Material blendMat;
-        public Color blendMatColor;
-        public RenderTexture outlineRenderTexture;
-        [SerializeField]
         float baseDepth = 120.0f;
 
         void Start()
         {
             sensor = KinectSensor.GetDefault();
 
-            Shader outLineShader = Shader.Find("Custom/Outline");
-            if (outLineShader != null)
-            {
-                blendMat = new Material(outLineShader);
-            }
-
+        
             if (sensor != null)
             {
                 if (!sensor.IsOpen)

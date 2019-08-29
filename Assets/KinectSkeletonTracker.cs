@@ -13,7 +13,11 @@ public class KinectSkeletonTracker : MonoBehaviour
     private KinectSensor sensor;
     private BodyFrameReader bodyFrameReader;
     private Body[] bodies;
+    [SerializeField]
     private ulong trackedId = ulong.MaxValue;
+    [SerializeField]
+    List<ulong> trackedIds;
+    public  int trackIndex=-1;
 
     private Dictionary<JointType, JointType> boneMap = new Dictionary<JointType, JointType>() {
 
@@ -116,7 +120,10 @@ public class KinectSkeletonTracker : MonoBehaviour
                 {
                     if (trackedIds.Count > 0)
                     {
-                        trackedId = trackedIds[0];
+                        if (trackedIds.Count - 1 >= trackIndex)
+                        {
+                            trackedId = trackedIds[trackIndex];
+                        }
                     }
                     else
                     {
@@ -137,6 +144,11 @@ public class KinectSkeletonTracker : MonoBehaviour
                 }
             }
         }
+    }
+
+    private void LateUpdate ( )
+    {
+        
     }
 
     private static Vector3 GetVector3FromJoint(KinectJoint joint)
