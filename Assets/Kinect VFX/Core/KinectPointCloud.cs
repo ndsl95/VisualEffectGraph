@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Profiling;
 using Windows.Kinect;
-using UnityEngine.UI;
 
 namespace KinectVfx
 {
@@ -27,13 +25,14 @@ namespace KinectVfx
         private RenderTexture tempPositionTexture;
         private Texture2D colorSourceTexture;
         private RenderTexture tempColorTexture;
-        float baseDepth = 120.0f;
 
+        [Header("EdgeCompute")]
+        private RenderTexture inputTextureBuffer;
+         RenderTexture edgeTexture;
         void Start()
         {
             sensor = KinectSensor.GetDefault();
 
-        
             if (sensor != null)
             {
                 if (!sensor.IsOpen)
@@ -64,8 +63,6 @@ namespace KinectVfx
                     {
                         if (depthFrame != null)
                         {
-                            
-
                             int depthFrameWidth = depthFrame.FrameDescription.Width;
                             int depthFrameHeight = depthFrame.FrameDescription.Height;
                             int depthFramePixelCount = depthFrameWidth * depthFrameHeight;
@@ -75,7 +72,7 @@ namespace KinectVfx
 
                             mapDimensions[0] = depthFrameWidth;
                             mapDimensions[1] = depthFrameHeight;
-                             baseDepth = depthFrameWidth * 0.5f * Mathf.Tan(horizontalFov * (Mathf.PI / 180f) * 0.5f);
+                            float baseDepth = depthFrameWidth * 0.5f * Mathf.Tan(horizontalFov * (Mathf.PI / 180f) * 0.5f);
 
                             if (tempPositionTexture != null && (tempPositionTexture.width != depthFrameWidth || tempPositionTexture.height != depthFrameHeight))
                             {
@@ -101,6 +98,20 @@ namespace KinectVfx
                                 positionBuffer = new ComputeBuffer(depthFramePixelCount / 2, sizeof(uint));
                             }
 
+                            if(inputTextureBuffer == null)
+                            {
+                                inputTextureBuffer = new RenderTexture(depthFrameWidth , depthFrameHeight ,0, RenderTextureFormat.ARGBHalf);
+                                inputTextureBuffer.enableRandomWrite = true;
+                                inputTextureBuffer.Create();
+                            }
+
+                            if (edgeTexture == null)
+                            {
+                                edgeTexture = new RenderTexture(mapDimensions[0] , mapDimensions[1] , 0 , RenderTextureFormat.ARGBHalf);
+                                edgeTexture.enableRandomWrite = true;
+                                edgeTexture.Create();
+                            }
+
                             using (var depthBuffer = depthFrame.LockImageBuffer())
                             {
                                 positionBuffer.SetData(depthBuffer.UnderlyingBuffer, depthFramePixelCount / 2, sizeof(uint));
@@ -111,9 +122,9 @@ namespace KinectVfx
                                 PointCloudBaker.SetTexture(bakeDepthKernel, "PositionTexture", tempPositionTexture);
                                 PointCloudBaker.Dispatch(bakeDepthKernel, depthFrameWidth / 8, depthFrameHeight / 8, 1);
                             }
-                            Graphics.CopyTexture(tempPositionTexture, PointCloudMap);
-   
-
+  
+                            //Graphics.CopyTexture(tempPositionTexture, PointCloudMap);
+                            Graphics.CopyTexture(tempPositionTexture , inputTextureBuffer);
                             if (UseColor) {
                                 using (var colorFrame = frame.ColorFrameReference.AcquireFrame())
                                 {
@@ -190,6 +201,17 @@ namespace KinectVfx
                     }
                 }
             }
+        }
+
+        private void LateUpdate ( )
+        {
+            
+            int edgeKernel = PointCloudBaker.FindKernel("BakeEdge");
+            PointCloudBaker.SetInts("MapDimensions" , mapDimensions);
+            PointCloudBaker.SetTexture(edgeKernel,"InputTexture" , inputTextureBuffer);
+            PointCloudBaker.SetTexture(edgeKernel , "OutPutTexture" , edgeTexture);
+            PointCloudBaker.Dispatch(edgeKernel , mapDimensions[0] / 8 , mapDimensions[1] / 8 , 1);
+            Graphics.CopyTexture(edgeTexture , PointCloudMap);
         }
 
         private void OnDestroy()

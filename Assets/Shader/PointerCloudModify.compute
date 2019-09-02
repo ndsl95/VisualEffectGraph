@@ -1,0 +1,22 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel BakeDepth
+
+uint2 MapDimensions;
+float NearThreshold;//最近的距离
+float FarThreshold;//最远的距离
+
+StructuredBuffer<uint> PositionBuffer;
+RWTexture2D<float4> PositionTexture;
+
+[numthreads(8,8,1)]
+void BakeDepth(uint3 id : SV_DispatchThreadID)
+{
+	uint i = id.x + id.y * MapDimensions.x;//获取当前处理的坐标,index的获取方式是固定的
+	//int index = id.x + (id.y * thread_x * thread_group_x) +(id.z * thread_group_x * thread_group_y * thread_x * thread_y);u3d官方定义
+	uint depth = PositionBuffer[i];//深度数据是2字节16bit
+	if (depth>FarThreshold)
+	{
+		//float4 = 
+	}
+	
+}

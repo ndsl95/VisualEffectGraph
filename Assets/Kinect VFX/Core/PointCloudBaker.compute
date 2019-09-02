@@ -1,19 +1,22 @@
 ﻿#pragma kernel BakeDepth
 #pragma kernel BakeColor
+#pragma kernel BakeEdge
 
 uint2 MapDimensions;
 float BaseDepth;
 
 StructuredBuffer<uint> PositionBuffer;
 StructuredBuffer<float2> DepthToColorMap;
+Texture2D InputTexture;
 
 Texture2D<float4> ColorSource;
 
 RWTexture2D<float4> PositionTexture;
 RWTexture2D<float4> ColorTexture;
+RWTexture2D<float4> OutPutTexture;
 
 [numthreads(8, 8, 1)]
-void BakeDepth(uint3 id : SV_DispatchThreadID)
+void BakeDepth(uint3 groupID:SV_GroupID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex, uint3 id : SV_DispatchThreadID)
 {
 	uint i = id.x + id.y * MapDimensions.x;
 	bool odd = i % 2 == 1;
@@ -26,9 +29,8 @@ void BakeDepth(uint3 id : SV_DispatchThreadID)
 	float angle = 0.0;
 	float3 ray = float3(((float)id.x - (MapDimensions.x * 0.5)) * 0.5, ((float)id.y - (MapDimensions.y * 0.5)) * -0.5, BaseDepth);
 	ray *= depth / BaseDepth;
-	PositionTexture[id.xy] = float4(ray*0.001, 1.0);
+	PositionTexture[id.xy] = float4(ray * 0.001, 1.0f);
 }
-
 [numthreads(8, 8, 1)]
 void BakeColor(uint3 id : SV_DispatchThreadID) {
 	uint i = id.x + id.y * MapDimensions.x;
@@ -36,4 +38,130 @@ void BakeColor(uint3 id : SV_DispatchThreadID) {
 	int2 coordinates = (int2)DepthToColorMap[i];
 	float4 color = ColorSource.Load(int3(coordinates, 0));
 	ColorTexture[id.xy] = color;
+}
+
+[numthreads(8, 8, 1)]
+void BakeEdge(uint3 groupID:SV_GroupID, uint3 groupThreadID : SV_GroupThreadID, uint groupIndex : SV_GroupIndex, uint3 id : SV_DispatchThreadID)
+{
+	uint i = id.x + id.y * MapDimensions.x;
+	uint2 curPos = uint2(id.x, id.y);
+	uint2 comparedPos = uint2(id.x, id.y+2);
+	float4 inputColor = InputTexture[comparedPos];
+	float inputColorR = inputColor.r;
+	float inputColorG = inputColor.g;
+	float inputColorB = inputColor.b;
+
+	
+	if (inputColorR == 0.0f && inputColorG == 0.0f && inputColorB == 0.0f)
+	{
+		
+		OutPutTexture[curPos] = InputTexture[curPos];
+	}
+	else
+	{ 
+		OutPutTexture[curPos] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	 comparedPos = uint2(id.x, id.y - 2);
+	 inputColor = InputTexture[comparedPos];
+	 inputColorR = inputColor.r;
+	 inputColorG = inputColor.g;
+	 inputColorB = inputColor.b;
+	if (inputColorR == 0.0f && inputColorG == 0.0f && inputColorB == 0.0f)
+	{
+
+		OutPutTexture[curPos] = InputTexture[curPos];
+	}
+	else
+	{
+		OutPutTexture[curPos] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	//OutPutTexture[curPos] = InputTexture[curPos];
+
+}
+
+
+bool Top(uint2 position)
+{
+	position += uint2(0, 5);
+	if (position.y > MapDimensions.y)
+	{
+		position.y = MapDimensions.y;
+	}
+	float4 curColor = PositionTexture[position];
+	float curColorR = curColor.r;
+	float curColorG = curColor.g;
+	float curColorB = curColor.b;
+	if (curColorR == 0.0f && curColorG == 0.0f && curColorB == 0.0f)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Left(uint2 position)
+{
+	position += uint2(5, 0);
+	if (position.y > MapDimensions.y)
+	{
+		position.y = MapDimensions.y;
+	}
+	float4 curColor = PositionTexture[position];
+	float curColorR = curColor.r;
+	float curColorG = curColor.g;
+	float curColorB = curColor.b;
+	if (curColorR == 0.0f && curColorG == 0.0f && curColorB == 0.0f)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Bottom(uint2 position)
+{
+	position += uint2(0, -5);
+	if (position.y > MapDimensions.y)
+	{
+		position.y = MapDimensions.y;
+	}
+	float4 curColor = PositionTexture[position];
+	float curColorR = curColor.r;
+	float curColorG = curColor.g;
+	float curColorB = curColor.b;
+	if (curColorR == 0.0f && curColorG == 0.0f && curColorB == 0.0f)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool Right(uint2 position)
+{
+	position += uint2(-5, 0);
+	if (position.y > MapDimensions.y)
+	{
+		position.y = MapDimensions.y;
+	}
+	float4 curColor = PositionTexture[position];
+	float curColorR = curColor.r;
+	float curColorG = curColor.g;
+	float curColorB = curColor.b;
+	if (curColorR == 0.0f && curColorG == 0.0f && curColorB == 0.0f)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }

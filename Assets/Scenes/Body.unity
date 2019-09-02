@@ -127,7 +127,7 @@ PrefabInstance:
     - target: {fileID: 1933265323840245561, guid: ff4722f04736a044987e031761a22e8d,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 904546795497943058, guid: ff4722f04736a044987e031761a22e8d,
         type: 3}
@@ -318,7 +318,7 @@ VFXRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 149907044}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 0
   m_DynamicOccludee: 1
@@ -507,13 +507,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 507348888}
-  m_LocalRotation: {x: 0.24110158, y: -0, z: -0, w: 0.97049993}
-  m_LocalPosition: {x: 0, y: 1.3300002, z: -3.04}
+  m_LocalRotation: {x: 0.59605527, y: 0.37598914, z: 0.39502454, w: 0.5893266}
+  m_LocalPosition: {x: -2.314, y: 1.502, z: 0.68}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 27.903002, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 156.078, y: -90.42, z: -88.58}
 --- !u!1 &904321989
 GameObject:
   m_ObjectHideFlags: 0
@@ -604,7 +604,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 904321989}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23c1ce4fb46143f46bc5cb5224c934f6, type: 3}
   m_Name: 
@@ -905,6 +905,16 @@ PrefabInstance:
     - target: {fileID: 2632316419236066232, guid: ff4722f04736a044987e031761a22e8d,
         type: 3}
       propertyPath: outlineRenderTexture
+      value: 
+      objectReference: {fileID: 8400000, guid: 908bb70febc211548b943ec2bb95c2a6, type: 2}
+    - target: {fileID: 2632316419236066232, guid: ff4722f04736a044987e031761a22e8d,
+        type: 3}
+      propertyPath: EdgeCompute
+      value: 
+      objectReference: {fileID: 7200000, guid: e42a090871756fe4fb3b4c96d05b79eb, type: 3}
+    - target: {fileID: 2632316419236066232, guid: ff4722f04736a044987e031761a22e8d,
+        type: 3}
+      propertyPath: edgeTexture
       value: 
       objectReference: {fileID: 8400000, guid: 908bb70febc211548b943ec2bb95c2a6, type: 2}
     m_RemovedComponents: []
@@ -1569,7 +1579,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2078394107
 RectTransform:
   m_ObjectHideFlags: 0

@@ -1,0 +1,18 @@
+﻿// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+uint edgeDistance;//边缘长度
+uint2 MapDimensions;//屏幕坐标，用于确定Index的坐标
+RWTexture2D<float4> Result;
+StructuredBuffer<uint> PositionBuffer;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    // TODO: insert actual code here!
+	//int index = id.x + id.y * MapDimensions.x*8;
+	//Result[id.xy] = float4(1.0, 1.0, 1.0, 1.0);
+    
+}
