@@ -25,6 +25,7 @@ namespace KinectVfx
         private RenderTexture tempPositionTexture;
         private Texture2D colorSourceTexture;
         private RenderTexture tempColorTexture;
+        public float baseDepth = 120;
 
         [Header("EdgeCompute")]
         private RenderTexture inputTextureBuffer;
@@ -72,7 +73,7 @@ namespace KinectVfx
 
                             mapDimensions[0] = depthFrameWidth;
                             mapDimensions[1] = depthFrameHeight;
-                            float baseDepth = depthFrameWidth * 0.5f * Mathf.Tan(horizontalFov * (Mathf.PI / 180f) * 0.5f);
+                            // baseDepth = depthFrameWidth * 0.5f * Mathf.Tan(horizontalFov * (Mathf.PI / 180f) * 0.5f);
 
                             if (tempPositionTexture != null && (tempPositionTexture.width != depthFrameWidth || tempPositionTexture.height != depthFrameHeight))
                             {
@@ -88,8 +89,10 @@ namespace KinectVfx
 
                             if (tempPositionTexture == null)
                             {
-                                tempPositionTexture = new RenderTexture(depthFrameWidth, depthFrameHeight, 0, RenderTextureFormat.ARGBHalf);
-                                tempPositionTexture.enableRandomWrite = true;
+                                tempPositionTexture = new RenderTexture(depthFrameWidth , depthFrameHeight , 0 , RenderTextureFormat.ARGBHalf)
+                                {
+                                    enableRandomWrite = true
+                                };
                                 tempPositionTexture.Create();
                             }
 
@@ -124,7 +127,7 @@ namespace KinectVfx
                             }
   
                             //Graphics.CopyTexture(tempPositionTexture, PointCloudMap);
-                            Graphics.CopyTexture(tempPositionTexture , inputTextureBuffer);
+                           Graphics.CopyTexture(tempPositionTexture , inputTextureBuffer);
                             if (UseColor) {
                                 using (var colorFrame = frame.ColorFrameReference.AcquireFrame())
                                 {
@@ -194,6 +197,7 @@ namespace KinectVfx
                                         PointCloudBaker.Dispatch(bakeColorKernel, depthFrameWidth / 8, depthFrameHeight / 8, 1);
 
                                         Graphics.CopyTexture(tempColorTexture, ColorMap);
+                                        
                                     }
                                 }
                             }                            
@@ -205,13 +209,15 @@ namespace KinectVfx
 
         private void LateUpdate ( )
         {
-            
-            int edgeKernel = PointCloudBaker.FindKernel("BakeEdge");
-            PointCloudBaker.SetInts("MapDimensions" , mapDimensions);
-            PointCloudBaker.SetTexture(edgeKernel,"InputTexture" , inputTextureBuffer);
-            PointCloudBaker.SetTexture(edgeKernel , "OutPutTexture" , edgeTexture);
-            PointCloudBaker.Dispatch(edgeKernel , mapDimensions[0] / 8 , mapDimensions[1] / 8 , 1);
-            Graphics.CopyTexture(edgeTexture , PointCloudMap);
+            if (edgeTexture != null)
+            {
+                int edgeKernel = PointCloudBaker.FindKernel("BakeEdge");
+                PointCloudBaker.SetInts("MapDimensions" , mapDimensions);
+                PointCloudBaker.SetTexture(edgeKernel , "InputTexture" , inputTextureBuffer);
+                PointCloudBaker.SetTexture(edgeKernel , "OutPutTexture" , edgeTexture);
+                PointCloudBaker.Dispatch(edgeKernel , mapDimensions[0] / 8 , mapDimensions[1] / 8 , 1);
+                Graphics.CopyTexture(edgeTexture , PointCloudMap);
+            }
         }
 
         private void OnDestroy()
